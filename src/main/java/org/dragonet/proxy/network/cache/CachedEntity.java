@@ -261,9 +261,8 @@ public class CachedEntity {
    }
 
    public int hashCode() {
-      int PRIME = true;
       int result = 1;
-      int result = result * 59 + this.getEid();
+      result = result * 59 + this.getEid();
       result = result * 59 + this.getPcType();
       Object $peType = this.getPeType();
       result = result * 59 + ($peType == null ? 0 : $peType.hashCode());
