@@ -138,9 +138,8 @@ public class UpdateBlockPacket extends PEPacket {
       }
 
       public int hashCode() {
-         int PRIME = true;
          int result = 1;
-         int result = result * 59 + this.getX();
+         result = result * 59 + this.getX();
          result = result * 59 + this.getZ();
          result = result * 59 + this.getY();
          result = result * 59 + this.getBlock();
