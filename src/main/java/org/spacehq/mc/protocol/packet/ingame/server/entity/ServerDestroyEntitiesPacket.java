@@ -1,0 +1,46 @@
+package org.spacehq.mc.protocol.packet.ingame.server.entity;
+
+import java.io.IOException;
+import org.spacehq.packetlib.io.NetInput;
+import org.spacehq.packetlib.io.NetOutput;
+import org.spacehq.packetlib.packet.Packet;
+
+public class ServerDestroyEntitiesPacket implements Packet {
+   private int[] entityIds;
+
+   private ServerDestroyEntitiesPacket() {
+   }
+
+   public ServerDestroyEntitiesPacket(int... entityIds) {
+      this.entityIds = entityIds;
+   }
+
+   public int[] getEntityIds() {
+      return this.entityIds;
+   }
+
+   public void read(NetInput in) throws IOException {
+      this.entityIds = new int[in.readVarInt()];
+
+      for(int index = 0; index < this.entityIds.length; ++index) {
+         this.entityIds[index] = in.readVarInt();
+      }
+
+   }
+
+   public void write(NetOutput out) throws IOException {
+      out.writeVarInt(this.entityIds.length);
+      int[] var2 = this.entityIds;
+      int var3 = var2.length;
+
+      for(int var4 = 0; var4 < var3; ++var4) {
+         int entityId = var2[var4];
+         out.writeVarInt(entityId);
+      }
+
+   }
+
+   public boolean isPriority() {
+      return false;
+   }
+}
