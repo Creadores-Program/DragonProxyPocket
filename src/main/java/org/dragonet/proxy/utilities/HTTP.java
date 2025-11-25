@@ -31,7 +31,6 @@ public class HTTP {
                Object var21 = null;
                return (String)var21;
             } else {
-               int data = true;
                ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                int data;
