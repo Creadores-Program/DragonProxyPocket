@@ -77,7 +77,6 @@ public class ServerHandler {
          byte len;
          String identifier;
          byte[] payload;
-         int offset;
          if (id == 1) {
             offset = offset + 1;
             len = packet[offset];
