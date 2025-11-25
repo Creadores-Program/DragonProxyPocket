@@ -86,10 +86,10 @@ public class LoginPacket extends PEPacket {
 
          for(int var12 = 0; var12 < var11; ++var12) {
             String token = var19[var12];
-            JSONObject map = this.decodeToken(token);
-            if (map != null && map.length() != 0) {
-               if (map.has("extraData")) {
-                  JSONObject extras = map.getJSONObject("extraData");
+            JSONObject map2 = this.decodeToken(token);
+            if (map2 != null && map2.length() != 0) {
+               if (map2.has("extraData")) {
+                  JSONObject extras = map2.getJSONObject("extraData");
                   if (extras.has("displayName")) {
                      this.username = extras.getString("displayName");
                   }
@@ -99,8 +99,8 @@ public class LoginPacket extends PEPacket {
                   }
                }
 
-               if (map.has("identityPublicKey")) {
-                  this.publicKey = map.getString("identityPublicKey");
+               if (map2.has("identityPublicKey")) {
+                  this.publicKey = map2.getString("identityPublicKey");
                }
             }
          }
