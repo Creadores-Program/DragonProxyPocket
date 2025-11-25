@@ -186,9 +186,9 @@ public class SessionManager {
                return false;
             }
 
-            Packet packet = new UNCONNECTED_PING();
-            packet.buffer = buffer;
-            packet.decode();
+            Packet packet2 = new UNCONNECTED_PING();
+            packet2.buffer = buffer;
+            packet2.decode();
             UNCONNECTED_PONG pk = new UNCONNECTED_PONG();
             pk.serverID = this.getID();
             pk.pingID = ((UNCONNECTED_PING)packet).pingID;
@@ -288,7 +288,6 @@ public class SessionManager {
          byte len;
          String identifier;
          String address;
-         int offset;
          switch(id) {
          case 1:
             offset = offset + 1;
