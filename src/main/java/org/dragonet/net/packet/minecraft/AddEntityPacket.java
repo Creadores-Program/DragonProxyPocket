@@ -122,7 +122,7 @@ public class AddEntityPacket extends PEPacket {
       public int hashCode() {
          int result = 1;
          long $eid1 = this.getEid1();
-         int result = result * 59 + (int)($eid1 >>> 32 ^ $eid1);
+         result = result * 59 + (int)($eid1 >>> 32 ^ $eid1);
          long $eid2 = this.getEid2();
          result = result * 59 + (int)($eid2 >>> 32 ^ $eid2);
          result = result * 59 + this.getFlag();
