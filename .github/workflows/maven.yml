@@ -17,7 +17,9 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: |-
+          mvn install:install-file -Dfile=libs/SonaHQ.jar -DgroupId=org.spacehq -DartifactId=mcprotocollib -Dversion=1.8.8-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+          mvn -B package --file pom.xml
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
