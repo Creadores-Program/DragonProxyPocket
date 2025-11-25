@@ -199,10 +199,9 @@ public class PlayerListPacket extends PEPacket {
       }
 
       public int hashCode() {
-         int PRIME = true;
          int result = 1;
          Object $uuid = this.getUuid();
-         int result = result * 59 + ($uuid == null ? 0 : $uuid.hashCode());
+         result = result * 59 + ($uuid == null ? 0 : $uuid.hashCode());
          long $eid = this.getEid();
          result = result * 59 + (int)($eid >>> 32 ^ $eid);
          Object $name = this.getName();
