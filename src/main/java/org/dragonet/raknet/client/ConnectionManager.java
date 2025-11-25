@@ -241,7 +241,6 @@ public class ConnectionManager {
          int offset = 1;
          byte len;
          byte[] payload;
-         int offset;
          if (id == 1) {
             offset = offset + 1;
             len = packet[offset];
