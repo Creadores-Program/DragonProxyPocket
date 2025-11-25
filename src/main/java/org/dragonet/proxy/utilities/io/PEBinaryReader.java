@@ -130,17 +130,17 @@ public class PEBinaryReader implements Closeable {
 
          return (T) this.readString();
       } else if (clazz.equals(Byte.class)) {
-         return (T) this.readByte();
+         return (T) Byte.valueOf(this.readByte());
       } else if (clazz.equals(Short.class)) {
-         return (T) this.readShort();
+         return (T) Short.valueOf(this.readShort());
       } else if (clazz.equals(Integer.class)) {
-         return (T) this.readInt();
+         return (T) Integer.valueOf(this.readInt());
       } else if (clazz.equals(Long.class)) {
-         return (T) this.readLong();
+         return (T) Long.valueOf(this.readLong());
       } else if (clazz.equals(Float.class)) {
-         return (T) this.readFloat();
+         return (T) Float.valueOf(this.readFloat());
       } else {
-         return clazz.equals(Double.class) ? (T) this.readDouble() : this.getUnknownTypeValue(clazz, args);
+         return clazz.equals(Double.class) ? (T) Double.valueOf(this.readDouble()) : this.getUnknownTypeValue(clazz, args);
       }
    }
 
