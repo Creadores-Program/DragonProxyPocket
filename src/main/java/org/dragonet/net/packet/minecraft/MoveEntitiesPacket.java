@@ -143,10 +143,9 @@ public class MoveEntitiesPacket extends PEPacket {
       }
 
       public int hashCode() {
-         int PRIME = true;
          int result = 1;
          long $eid = this.getEid();
-         int result = result * 59 + (int)($eid >>> 32 ^ $eid);
+         result = result * 59 + (int)($eid >>> 32 ^ $eid);
          result = result * 59 + Float.floatToIntBits(this.getX());
          result = result * 59 + Float.floatToIntBits(this.getY());
          result = result * 59 + Float.floatToIntBits(this.getZ());
