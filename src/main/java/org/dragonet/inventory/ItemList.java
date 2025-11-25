@@ -39,7 +39,7 @@ public class ItemList {
                      return true;
                   }
 
-                  this.items.set(i, (Object)null);
+                  this.items.set(i, null);
                   toRemove -= amount;
                }
             }
