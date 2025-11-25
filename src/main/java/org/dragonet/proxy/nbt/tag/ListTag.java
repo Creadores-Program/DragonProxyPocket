@@ -33,7 +33,7 @@ public class ListTag<T extends Tag> extends Tag {
       Iterator var2 = this.list.iterator();
 
       while(var2.hasNext()) {
-         T aList = (Tag)var2.next();
+         T aList = (T) (Tag)var2.next();
          aList.write(dos);
       }
 
@@ -45,9 +45,9 @@ public class ListTag<T extends Tag> extends Tag {
       this.list = new ArrayList();
 
       for(int i = 0; i < size; ++i) {
-         Tag tag = Tag.newTag(this.type, (String)null);
+         Tag tag = Tag.newTag(this.type, null);
          tag.load(dis);
-         this.list.add(tag);
+         this.list.add((T) tag);
       }
 
    }
@@ -68,7 +68,7 @@ public class ListTag<T extends Tag> extends Tag {
       Iterator var4 = this.list.iterator();
 
       while(var4.hasNext()) {
-         T aList = (Tag)var4.next();
+         T aList = (T) (Tag)var4.next();
          aList.print(prefix, out);
       }
 
@@ -88,7 +88,7 @@ public class ListTag<T extends Tag> extends Tag {
    }
 
    public T get(int index) {
-      return (Tag)this.list.get(index);
+      return (T) (Tag)this.list.get(index);
    }
 
    public List<T> getAll() {
@@ -121,8 +121,8 @@ public class ListTag<T extends Tag> extends Tag {
       Iterator var2 = this.list.iterator();
 
       while(var2.hasNext()) {
-         T t = (Tag)var2.next();
-         T copy = t.copy();
+         T t = (T) (Tag)var2.next();
+         T copy = (T) t.copy();
          res.list.add(copy);
       }
 
