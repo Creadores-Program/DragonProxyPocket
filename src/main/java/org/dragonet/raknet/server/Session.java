@@ -529,9 +529,9 @@ public class Session {
                while(var2.hasNext()) {
                   seq = (Integer)var2.next();
                   if (this.recoveryQueue.containsKey(seq)) {
-                     DataPacket pk = (DataPacket)this.recoveryQueue.get(seq);
-                     pk.seqNumber = this.sendSeqNumber++;
-                     this.packetToSend.add(pk);
+                     DataPacket pk2 = (DataPacket)this.recoveryQueue.get(seq);
+                     pk2.seqNumber = this.sendSeqNumber++;
+                     this.packetToSend.add(pk2);
                      this.recoveryQueue.remove(seq);
                   }
                }
