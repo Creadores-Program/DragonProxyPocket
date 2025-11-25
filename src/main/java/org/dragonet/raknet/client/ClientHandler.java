@@ -63,7 +63,6 @@ public class ClientHandler {
          byte id = packet[0];
          int offset = 1;
          byte len;
-         int offset;
          if (id == 1) {
             offset = offset + 1;
             len = packet[offset];
