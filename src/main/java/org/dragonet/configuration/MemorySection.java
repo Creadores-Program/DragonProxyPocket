@@ -513,7 +513,7 @@ public class MemorySection implements ConfigurationSection {
                } catch (Exception var7) {
                }
             } else if (object instanceof Character) {
-               result.add((byte)(Character)object);
+               result.add((byte)(char)object);
             } else if (object instanceof Number) {
                result.add(((Number)object).byteValue());
             }
@@ -567,7 +567,7 @@ public class MemorySection implements ConfigurationSection {
                } catch (Exception var7) {
                }
             } else if (object instanceof Character) {
-               result.add((short)(Character)object);
+               result.add((short)(char)object);
             } else if (object instanceof Number) {
                result.add(((Number)object).shortValue());
             }
