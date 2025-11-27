@@ -284,7 +284,7 @@ public class SessionManager {
       byte[] packet = this.server.readMainToThreadPacket();
       if (packet != null && packet.length > 0) {
          byte id = packet[0];
-         int offset = 1;
+         int offset = 0;
          byte len;
          String identifier;
          String address;
