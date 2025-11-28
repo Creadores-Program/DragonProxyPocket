@@ -28,7 +28,7 @@ public class RaknetInterface implements ServerInstance {
       String name = "MCPE;";
       name = name + serverName + ";";
       name = name + "82;";
-      name = name + "0.15.4;";
+      name = name + "0.15.10;";
       name = name + players + ";" + maxPlayers;
       if (this.handler != null) {
          this.handler.sendOption("name", name);

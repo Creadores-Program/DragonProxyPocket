@@ -84,7 +84,7 @@ public class DragonProxy {
 
       this.logger.info(this.lang.get("init_loading", "0.0.5"));
       this.logger.info(this.lang.get("init_mc_pc_support", "1.8.9"));
-      this.logger.info(this.lang.get("init_mc_pe_support", "0.15.4"));
+      this.logger.info(this.lang.get("init_mc_pe_support", "0.15.10"));
       this.authMode = this.config.getMode().toLowerCase();
       if (!this.authMode.equals("cls") && !this.authMode.equals("online") && !this.authMode.equals("offline")) {
          this.logger.severe("Invalid login 'mode' option detected, must be cls/online/offline. You set it to '" + this.authMode + "'! ");

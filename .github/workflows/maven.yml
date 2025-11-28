@@ -18,7 +18,7 @@ jobs:
           distribution: 'temurin'
       - name: Build with Maven
         run: |-
-          mvn install:install-file -Dfile=libs/SonaHQ.jar -DgroupId=org.spacehq -DartifactId=mcprotocollib -Dversion=1.8.8-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+          mvn install:install-file -Dfile=libs/dragonproxy-0.0.5.jar -DgroupId=org.dragonet.proxy -DartifactId=DragonProxy -Dversion=0.0.5 -Dpackaging=jar -DgeneratePom=true
           mvn -B package --file pom.xml
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
