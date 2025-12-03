@@ -1,3 +1,15 @@
+/*
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ *                       Version 3, 29 June 2007
+ *
+ * Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ *
+ * You can view LICENCE file for details. 
+ *
+ * @author The Dragonet Team
+ */
 package org.dragonet.proxy;
 
 import java.io.File;
@@ -8,172 +20,183 @@ import java.io.InputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
-import org.dragonet.proxy.commands.CommandRegister;
+
+import org.dragonet.proxy.network.SessionRegister;
+import org.dragonet.proxy.network.RaknetInterface;
 import org.dragonet.proxy.configuration.Lang;
 import org.dragonet.proxy.configuration.ServerConfig;
-import org.dragonet.proxy.network.RaknetInterface;
-import org.dragonet.proxy.network.SessionRegister;
+import org.dragonet.proxy.utilities.Versioning;
+import org.dragonet.proxy.utilities.Terminal;
+import org.dragonet.proxy.commands.CommandRegister;
+
 import org.mcstats.Metrics;
+import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 
 public class DragonProxy {
-   public static final boolean IS_RELEASE = true;
-   private final Logger logger = Logger.getLogger("DragonProxy");
-   private final TickerThread ticker = new TickerThread(this);
-   private ServerConfig config;
-   private Lang lang;
-   private SessionRegister sessionRegister;
-   private RaknetInterface network;
-   private boolean shuttingDown;
-   private ScheduledExecutorService generalThreadPool;
-   private CommandRegister commandRegister;
-   private String authMode;
-   private ConsoleManager console;
-   private Metrics metrics;
-   private String motd;
-   private boolean isDebug = false;
 
-   public static void main(String[] args) {
-      (new DragonProxy()).run(args);
-   }
+    public static void main(String[] args) {
+        new DragonProxy().run(args);
+    }
+	
+    public final static boolean IS_RELEASE = true; //DO NOT CHANGE, ONLY ON PRODUCTION
 
-   public void run(String[] args) {
-      try {
-         File fileConfig = new File("config.yml");
-         if (!fileConfig.exists()) {
-            FileOutputStream fos = new FileOutputStream(fileConfig);
-            InputStream ins = DragonProxy.class.getResourceAsStream("/config.yml");
-            boolean var5 = true;
+    @Getter
+    private final Logger logger = Logger.getLogger("DragonProxy");
 
-            while(true) {
-               int data;
-               if ((data = ins.read()) == -1) {
-                  ins.close();
-                  fos.close();
-                  break;
-               }
+    private final TickerThread ticker = new TickerThread(this);
 
-               fos.write(data);
+    @Getter
+    private ServerConfig config;
+
+    @Getter
+    private Lang lang;
+
+    @Getter
+    private SessionRegister sessionRegister;
+
+    @Getter
+    private RaknetInterface network;
+
+    @Getter
+    private boolean shuttingDown;
+
+    @Getter
+    private ScheduledExecutorService generalThreadPool;
+
+    @Getter
+    private CommandRegister commandRegister;
+
+    @Getter
+    private String authMode;
+
+    private ConsoleManager console;
+
+    private Metrics metrics;
+
+    private String motd;
+
+    private boolean isDebug = false;
+
+    public void run(String[] args) {
+        //Need to initialize config before console
+        try {
+            File fileConfig = new File("config.yml");
+            if (!fileConfig.exists()) {
+                //Create default config
+                FileOutputStream fos = new FileOutputStream(fileConfig);
+                InputStream ins = DragonProxy.class.getResourceAsStream("/config.yml");
+                int data = -1;
+                while((data = ins.read()) != -1){
+                    fos.write(data);
+                }
+                ins.close();
+                fos.close();
             }
-         }
+            config = new Yaml().loadAs(new FileInputStream(fileConfig), ServerConfig.class);
+        } catch (IOException ex) {
+            logger.severe("Failed to load configuration file! Make sure the file is writable.");
+            ex.printStackTrace();
+            return;
+        }
 
-         this.config = (ServerConfig)(new Yaml()).loadAs((InputStream)(new FileInputStream(fileConfig)), ServerConfig.class);
-      } catch (IOException var7) {
-         this.logger.severe("Failed to load configuration file! Make sure the file is writable.");
-         var7.printStackTrace();
-         return;
-      }
+        //Initialize console
+        console = new ConsoleManager(this);
+        console.startConsole();
+		
+	//Put at the top instead
+	if(!IS_RELEASE) {
+		logger.warning(Terminal.YELLOW + "This is a development build. It may contain bugs. Do not use on production. !!\n");
+	}
 
-      this.console = new ConsoleManager(this);
-      this.console.startConsole();
-      this.checkArguments(args);
-      if (this.config.isLog_console()) {
-         this.console.startFile("console.log");
-         this.logger.info("Saving console output enabled");
-      } else {
-         this.logger.info("Saving console output disabled");
-      }
+	//Check for startup arguments
+        checkArguments(args);
 
-      try {
-         this.lang = new Lang(this.config.getLang());
-      } catch (IOException var6) {
-         this.logger.severe("Failed to load language file: " + this.config.getLang() + "!");
-         var6.printStackTrace();
-         return;
-      }
+	//Should we save console log? Set it in config file
+        if(config.isLog_console()){
+            console.startFile("console.log");
+            logger.info("Saving console output enabled"); //TODO: Translations
+        } else {
+            logger.info("Saving console output disabled");
+        }
+		
+	//Load language file
+        try {
+            lang = new Lang(config.getLang());
+        } catch (IOException ex) {
+            logger.severe("Failed to load language file: " + config.getLang() + "!");
+            ex.printStackTrace();
+            return;
+        }
+	//Load some more stuff
+        logger.info(lang.get(Lang.INIT_LOADING, Versioning.RELEASE_VERSION));
+        logger.info(lang.get(Lang.INIT_MC_PC_SUPPORT, Versioning.MINECRAFT_PC_VERSION));
+        logger.info(lang.get(Lang.INIT_MC_PE_SUPPORT, Versioning.MINECRAFT_PE_VERSION));
+        authMode = config.getMode().toLowerCase();
+        if(!authMode.equals("cls") && !authMode.equals("online") && !authMode.equals("offline")){
+            logger.severe("Invalid login 'mode' option detected, must be cls/online/offline. You set it to '" + authMode + "'! ");
+            return;
+        }
+		
+	//Init session and command stuff
+        sessionRegister = new SessionRegister(this);
+        commandRegister = new CommandRegister(this);
+		
+        /*if (IS_RELEASE) {
+            try {
+                metrics = new ServerMetrics(this);
+                metrics.start();
+            } catch (IOException ex) { }
+        }*/
 
-      this.logger.info(this.lang.get("init_loading", "0.0.5"));
-      this.logger.info(this.lang.get("init_mc_pc_support", "1.8.9"));
-      this.logger.info(this.lang.get("init_mc_pe_support", "0.15.10"));
-      this.authMode = this.config.getMode().toLowerCase();
-      if (!this.authMode.equals("cls") && !this.authMode.equals("online") && !this.authMode.equals("offline")) {
-         this.logger.severe("Invalid login 'mode' option detected, must be cls/online/offline. You set it to '" + this.authMode + "'! ");
-      } else {
-         this.sessionRegister = new SessionRegister(this);
-         this.commandRegister = new CommandRegister(this);
-         this.logger.info(this.lang.get("init_creating_thread_pool", this.config.getThread_pool_size()));
-         this.generalThreadPool = Executors.newScheduledThreadPool(this.config.getThread_pool_size());
-         this.logger.info(this.lang.get("init_binding", this.config.getUdp_bind_ip(), this.config.getUdp_bind_port()));
-         this.network = new RaknetInterface(this, this.config.getUdp_bind_ip(), this.config.getUdp_bind_port());
-         this.motd = this.config.getMotd();
-         this.motd = this.motd.replace("&", "§");
-         this.network.setBroadcastName(this.motd, -1, -1);
-         this.ticker.start();
-         this.logger.info(this.lang.get("init_done"));
-      }
-   }
+        //Create thread pool
+        logger.info(lang.get(Lang.INIT_CREATING_THREAD_POOL, config.getThread_pool_size()));
+        generalThreadPool = Executors.newScheduledThreadPool(config.getThread_pool_size());
 
-   public boolean isDebug() {
-      return this.isDebug;
-   }
+        //Bind
+        logger.info(lang.get(Lang.INIT_BINDING, config.getUdp_bind_ip(), config.getUdp_bind_port()));
+        network = new RaknetInterface(this,
+                config.getUdp_bind_ip(), //IP
+                config.getUdp_bind_port()); //Port
 
-   public void onTick() {
-      this.network.onTick();
-      this.sessionRegister.onTick();
-   }
+        //MOTD
+        motd = config.getMotd();
+        motd = motd.replace("&", "§");
 
-   public void checkArguments(String[] args) {
-      String[] var2 = args;
-      int var3 = args.length;
+        network.setBroadcastName(motd, -1, -1);
+        ticker.start();
+        logger.info(lang.get(Lang.INIT_DONE));
+    }
 
-      for(int var4 = 0; var4 < var3; ++var4) {
-         String arg = var2[var4];
-         if (arg.toLowerCase().contains("--debug")) {
-            this.isDebug = true;
-            this.logger.info("\u001b[36mProxy running in debug mode.");
-         }
-      }
+    public boolean isDebug(){
+        return isDebug;
+    }
 
-   }
+    public void onTick() {
+        network.onTick();
+        sessionRegister.onTick();
+    }
 
-   public void shutdown() {
-      this.logger.info(this.lang.get("shutting_down"));
-      this.isDebug = false;
-      this.shuttingDown = true;
-      this.network.shutdown();
+    public void checkArguments(String[] args){
+        for(String arg : args){
+            if(arg.toLowerCase().contains("--debug")){
+                isDebug = true;
+                logger.info(Terminal.CYAN + "Proxy running in debug mode.");
+            }
+        }
+    }
 
-      try {
-         Thread.sleep(2000L);
-      } catch (Exception var2) {
-      }
+    public void shutdown() {
+        logger.info(lang.get(Lang.SHUTTING_DOWN));
 
-      System.out.println("Goodbye!");
-      System.exit(0);
-   }
-
-   public Logger getLogger() {
-      return this.logger;
-   }
-
-   public ServerConfig getConfig() {
-      return this.config;
-   }
-
-   public Lang getLang() {
-      return this.lang;
-   }
-
-   public SessionRegister getSessionRegister() {
-      return this.sessionRegister;
-   }
-
-   public RaknetInterface getNetwork() {
-      return this.network;
-   }
-
-   public boolean isShuttingDown() {
-      return this.shuttingDown;
-   }
-
-   public ScheduledExecutorService getGeneralThreadPool() {
-      return this.generalThreadPool;
-   }
-
-   public CommandRegister getCommandRegister() {
-      return this.commandRegister;
-   }
-
-   public String getAuthMode() {
-      return this.authMode;
-   }
+        isDebug = false;
+        this.shuttingDown = true;
+        network.shutdown();
+        try{
+            Thread.sleep(2000); //Wait for all clients disconnected
+        } catch (Exception e) {
+        }
+        System.out.println("Goodbye!");
+        System.exit(0);
+    }
 }
